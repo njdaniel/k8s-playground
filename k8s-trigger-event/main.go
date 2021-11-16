@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -34,7 +35,26 @@ func main() {
 		0, //Duration is int64
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				fmt.Printf("service added: %s \n", obj)
+				fmt.Printf("service added: \n")
+				fmt.Printf("Type: %T \n", obj)
+				if v, ok := obj.(*v1.Service); ok {
+					//fmt.Println(v.Annotations)
+					fmt.Println(v.Namespace)
+					for _, j := range v.Annotations {
+						k := make(map[string]interface{}, 0)
+						err := json.Unmarshal([]byte(j), &k)
+						if err != nil {
+							fmt.Printf("error cannot unmarshal to map[string]string: %v", err)
+						}
+						fmt.Println(k["kind"])
+					}
+					//fmt.Println(v.Name)
+					//fmt.Println(v.Kind)
+					//fmt.Printf("%v", v)
+				} else {
+					fmt.Println("incorrect type")
+				}
+
 			},
 			DeleteFunc: func(obj interface{}) {
 				fmt.Printf("service deleted: %s \n", obj)
